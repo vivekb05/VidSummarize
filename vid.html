@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VidSummarize - YouTube Video Summarizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #ff0000;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logo-text span {
+            color: #ff0000;
+        }
+
+        .main-content {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .url-input-container {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        #video-url {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px 0 0 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        #video-url:focus {
+            outline: none;
+            border-color: #ff0000;
+        }
+
+        #submit-btn {
+            background-color: #ff0000;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        #submit-btn:hover {
+            background-color: #cc0000;
+        }
+
+        .options-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .option-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: white;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #ff0000;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #ff0000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .output-section {
+            margin-top: 30px;
+        }
+
+        #summary-output {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+            background-color: #f9f9f9;
+        }
+
+        .error-msg {
+            color: #ff0000;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .video-preview {
+            display: none;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .video-preview img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .video-title {
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #777;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .url-input-container {
+                flex-direction: column;
+            }
+
+            #video-url {
+                border-radius: 8px;
+                margin-bottom: 10px;
+            }
+
+            #submit-btn {
+                border-radius: 8px;
+                width: 100%;
+            }
+            
+            .options-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="#" class="logo">
+                <div class="logo-icon">VS</div>
+                <div class="logo-text">Vid<span>Summarize</span></div>
+            </a>
+        </header>
+
+        <div class="main-content">
+            <h1>YouTube Video Summarizer</h1>
+            
+            <div class="input-section">
+                <label for="video-url">Enter YouTube Video URL:</label>
+                <div class="url-input-container">
+                    <input type="text" id="video-url" placeholder="https://www.youtube.com/watch?v=..." />
+                    <button id="submit-btn">Summarize</button>
+                </div>
+                <div class="error-msg" id="error-message">Please enter a valid YouTube URL</div>
+                
+                <div class="options-container">
+                    <div class="option-group">
+                        <label for="summary-language">Summary Language:</label>
+                        <select id="summary-language">
+                            <option value="en">English</option>
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                            <option value="de">German</option>
+                            <option value="it">Italian</option>
+                            <option value="pt">Portuguese</option>
+                            <option value="ru">Russian</option>
+                            <option value="zh">Chinese</option>
+                            <option value="ja">Japanese</option>
+                            <option value="ko">Korean</option>
+                            <option value="ar">Arabic</option>
+                            <option value="hi">Hindi</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label for="summary-length">Summary Length:</label>
+                        <select id="summary-length">
+                            <option value="short">Short</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="long">Long</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-preview" id="video-preview">
+                <img id="thumbnail" src="" alt="Video thumbnail">
+                <div class="video-title" id="video-title"></div>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p>Generating summary... This may take a moment.</p>
+            </div>
+
+            <div class="output-section">
+                <label for="summary-output">Video Summary:</label>
+                <textarea id="summary-output" readonly placeholder="Your summary will appear here..."></textarea>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2025 VidSummarize - Your YouTube Video Summarizer</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoUrlInput = document.getElementById('video-url');
+            const submitButton = document.getElementById('submit-btn');
+            const summaryOutput = document.getElementById('summary-output');
+            const errorMessage = document.getElementById('error-message');
+            const loadingElement = document.getElementById('loading');
+            const videoPreview = document.getElementById('video-preview');
+            const thumbnailImg = document.getElementById('thumbnail');
+            const videoTitleElement = document.getElementById('video-title');
+            const summaryLanguage = document.getElementById('summary-language');
+            const summaryLength = document.getElementById('summary-length');
+
+            // Function to validate YouTube URL
+            function isValidYouTubeUrl(url) {
+                const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
+                return youtubeRegex.test(url);
+            }
+
+            // Function to extract video ID from YouTube URL
+            function extractVideoId(url) {
+                const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+                const match = url.match(regExp);
+                return (match && match[7].length === 11) ? match[7] : false;
+            }
+
+            // Function to show video preview
+            function showVideoPreview(videoId) {
+                // Set thumbnail
+                thumbnailImg.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                
+                // For a real application, you would fetch the video title via API
+                // This is a mockup, so we'll set a generic title
+                videoTitleElement.textContent = "How to Master JavaScript in 2025";
+                
+                // Show the preview
+                videoPreview.style.display = 'block';
+            }
+
+            // Function to simulate summarization API call
+            function generateSummary(videoId, language, length) {
+                return new Promise((resolve) => {
+                    // Simulate API delay
+                    setTimeout(() => {
+                        // Mock summaries based on language
+                        const summaries = {
+                            en: {
+                                short: "This JavaScript tutorial covers 2025 features including async improvements, type inference, and memory management. Key takeaways include using optional chaining, improved debugging tools, and standardized module patterns.",
+                                medium: "This comprehensive JavaScript tutorial covers the latest features introduced in 2025. The presenter explains async pattern improvements, enhanced type inference, performance optimization techniques, and memory management features. The video concludes with practical examples for browser and Node.js environments. Key takeaways include using optional chaining syntax, improved debugging tools, and standardized module patterns.",
+                                long: "This comprehensive JavaScript tutorial covers the latest features introduced in 2025. The presenter begins by explaining the new async pattern improvements and how they simplify code. Next, they demonstrate the enhanced type inference system that's now built into JavaScript. The middle section focuses on performance optimization techniques and the new memory management features. Finally, the video concludes with practical real-world examples showing how to implement these features in both browser and Node.js environments. Key takeaways include using the new optional chaining syntax, leveraging the improved debugging tools, and adopting the standardized module pattern for better code organization."
+                            },
+                            es: {
+                                short: "Este tutorial de JavaScript cubre las características de 2025, incluyendo mejoras asíncronas, inferencia de tipos y gestión de memoria. Los puntos clave incluyen el encadenamiento opcional, herramientas de depuración mejoradas y patrones de módulos estandarizados.",
+                                medium: "Este completo tutorial de JavaScript cubre las últimas características introducidas en 2025. El presentador explica mejoras en patrones asíncronos, inferencia de tipos mejorada, técnicas de optimización de rendimiento y características de gestión de memoria. El video concluye con ejemplos prácticos para entornos de navegador y Node.js.",
+                                long: "Este completo tutorial de JavaScript cubre las últimas características introducidas en 2025. El presentador comienza explicando las nuevas mejoras en patrones asíncronos y cómo simplifican el código. A continuación, demuestran el sistema mejorado de inferencia de tipos que ahora está integrado en JavaScript. La sección intermedia se centra en técnicas de optimización de rendimiento y las nuevas características de gestión de memoria. Finalmente, el video concluye con ejemplos prácticos del mundo real que muestran cómo implementar estas características tanto en entornos de navegador como de Node.js."
+                            },
+                            fr: {
+                                short: "Ce tutoriel JavaScript couvre les fonctionnalités de 2025, notamment les améliorations asynchrones, l'inférence de type et la gestion de la mémoire. Les points clés incluent l'utilisation du chaînage optionnel, des outils de débogage améliorés et des modèles de modules standardisés.",
+                                medium: "Ce tutoriel complet sur JavaScript couvre les dernières fonctionnalités introduites en 2025. Le présentateur explique les améliorations des modèles asynchrones, l'inférence de type améliorée, les techniques d'optimisation des performances et les fonctionnalités de gestion de la mémoire.",
+                                long: "Ce tutoriel complet sur JavaScript couvre les dernières fonctionnalités introduites en 2025. Le présentateur commence par expliquer les nouvelles améliorations des modèles asynchrones et comment elles simplifient le code. Ensuite, ils démontrent le système amélioré d'inférence de type qui est maintenant intégré à JavaScript. La section centrale se concentre sur les techniques d'optimisation des performances et les nouvelles fonctionnalités de gestion de la mémoire."
+                            }
+                        };
+                        
+                        // Get summary in requested language or default to English if not available
+                        const languageSummaries = summaries[language] || summaries.en;
+                        const result = languageSummaries[length] || languageSummaries.medium;
+                        
+                        resolve(result);
+                    }, 2000);
+                });
+            }
+
+            // Event listener for the submit button
+            submitButton.addEventListener('click', async function() {
+                const url = videoUrlInput.value.trim();
+                
+                // Validate URL
+                if (!isValidYouTubeUrl(url)) {
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+                
+                errorMessage.style.display = 'none';
+                summaryOutput.value = '';
+                loadingElement.style.display = 'block';
+                
+                const videoId = extractVideoId(url);
+                if (videoId) {
+                    showVideoPreview(videoId);
+                    
+                    try {
+                        // Get selected language and length
+                        const language = summaryLanguage.value;
+                        const length = summaryLength.value;
+                        
+                        const summary = await generateSummary(videoId, language, length);
+                        summaryOutput.value = summary;
+                    } catch (error) {
+                        summaryOutput.value = "Sorry, we couldn't generate a summary for this video. Please try another video.";
+                    } finally {
+                        loadingElement.style.display = 'none';
+                    }
+                } else {
+                    loadingElement.style.display = 'none';
+                    errorMessage.style.display = 'block';
+                }
+            });
+
+            // Event listener for Enter key in input field
+            videoUrlInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    submitButton.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
