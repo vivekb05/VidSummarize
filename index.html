@@ -318,9 +318,21 @@
         const summaryLength = document.getElementById('summary-length');
 
         function isValidYouTubeUrl(url) {
-            const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w\-]{11}(&.*)?$/;
-            return youtubeRegex.test(url);
-        }
+    try {
+        const parsedUrl = new URL(url);
+        const hostname = parsedUrl.hostname;
+        const pathname = parsedUrl.pathname;
+        const videoId = extractVideoId(url);
+
+        return (
+            (hostname.includes('youtube.com') && parsedUrl.searchParams.get('v')) ||
+            (hostname === 'youtu.be' && pathname.length > 1 && videoId)
+        );
+    } catch (e) {
+        return false;
+    }
+}
+
 
         function extractVideoId(url) {
             const urlObj = new URL(url);
